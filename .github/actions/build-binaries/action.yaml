@@ -57,9 +57,9 @@ runs:
         ls -l dist
         cd dist/algokit/
         if [ "${{ inputs.production_release }}" == "true" ]; then
-          tar -zcvf ../../algokit-${{ env.RELEASE_VERSION }}-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz *
+          tar -zcf ../../algokit-${{ env.RELEASE_VERSION }}-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz *
         else
-          tar -zcvf ../../algokit-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz *
+          tar -zcf ../../algokit-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz *
         fi
         cd ../..
         ls -l
@@ -92,6 +92,8 @@ runs:
       if: ${{ inputs.operating_system == 'Windows' }}
       shell: pwsh
       run: "./scripts/create-winget-package.ps1"
+      env:
+        RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
 
     # TODO: NC - Codesign winget package
 
