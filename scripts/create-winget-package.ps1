@@ -15,7 +15,7 @@ $version = $Env:RELEASE_VERSION.TrimStart("v") # TODO: NC - Do we need to create
 Get-ChildItem dist
 
 $distDir = (Resolve-Path dist)
-$binaryArchives = Get-ChildItem -File -Filter *Windows*.tar.gz $distDir
+$binaryArchives = Get-ChildItem -File -Filter *Windows*.tar.gz # TODO: NC - Work out where we need to run this from
 if ($binaryArchives.count -ne 1) {
   Throw "Packaging error. build artifact contained $($binaryArchives.count) normally named windows binary archive files"
 }
