@@ -10,9 +10,9 @@ $ErrorActionPreference = 'Stop'
 $sdkPath = (Resolve-Path "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64")
 $makePri = (Join-Path $sdkPath "makepri.exe")
 $makeAppx = (Join-Path $sdkPath "makeappx.exe")
-$version = $Env:RELEASE_VERSION.TrimStart("v") # TODO: NC - Do we need to create a pre-release package?
+$version = $env:RELEASE_VERSION.TrimStart("v") # TODO: NC - Do we need to create a pre-release package?
 
-Get-ChildItem dist
+Write-Host "Version: $($version)"
 
 $distDir = (Resolve-Path dist)
 $binaryArchives = Get-ChildItem -File -Filter *Windows*.tar.gz # TODO: NC - Work out where we need to run this from
