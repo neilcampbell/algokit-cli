@@ -1,19 +1,13 @@
 name: Build, Test and Publish Pyinstaller Binaries
 
 on:
-  push: # TODO: NC - Remove this when done testing
+  push:
     branches:
       - winget
-  workflow_dispatch:
-    inputs:
-      production_release:
-        required: true
-        type: string
-        default: "false"
-      python_version:
-        required: true
-        type: string
-        default: "3.12" # TODO: NC - Remove this when done testing
+
+env:
+  production_release: "false"
+  python_version: "3.12"
 
 jobs:
   build-binaries:
@@ -21,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # macos-14 is the Apple Silicon M1 runner
-        os: [ubuntu-20.04, windows-2019, macos-latest, macos] # TODO: NC - Add macos14 back in
+        os: [ubuntu-20.04, windows-2019, macos-latest, macos]
         include:
           - os: ubuntu-20.04
             build_command: "poetry run poe package_unix"
@@ -33,12 +27,12 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ inputs.production_release == 'true' && '0' || '1' }}
+          fetch-depth: ${{ env.production_release == 'true' && '0' || '1' }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python_version }}
+          python-version: ${{ env.python_version }}
 
       - name: Set up Poetry
         uses: ./.github/actions/setup-poetry
@@ -49,9 +43,9 @@ jobs:
       - name: Build & test binary
         uses: ./.github/actions/build-binaries
         with:
-          python_version: ${{ inputs.python_version }}
+          python_version: ${{ env.python_version }}
           package_name: "algokit"
-          production_release: ${{ inputs.production_release }}
+          production_release: ${{ env.production_release }}
           operating_system: ${{ runner.os }}
           architecture: ${{ runner.arch }}
           build_command: ${{ matrix.build_command }}
