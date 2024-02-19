@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 $sdkPath = (Resolve-Path "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64")
 $makePri = (Join-Path $sdkPath "makepri.exe")
 $makeAppx = (Join-Path $sdkPath "makeappx.exe")
-$version = $env:RELEASE_VERSION.TrimStart("v") # TODO: NC - Do we need to create a pre-release package?
+$version = (if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION.TrimStart("v") } else { '0.0.1' })
 
 Write-Host "Version: $($version)"
 
