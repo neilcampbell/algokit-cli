@@ -25,7 +25,7 @@ runs:
   steps:
     - name: Build Executable
       run: ${{ inputs.build_command }}
-      shell: bash
+      shell: ${{ inputs.operating_system == 'Windows' && 'pwsh' || 'bash' }}
 
     - name: Set TEST_CLI_PATH
       run: |
