@@ -12,6 +12,8 @@ $makePri = (Join-Path $sdkPath "makepri.exe")
 $makeAppx = (Join-Path $sdkPath "makeappx.exe")
 $version = $Env:RELEASE_VERSION.TrimStart("v") # TODO: NC - Do we need to create a pre-release package?
 
+Get-ChildItem dist
+
 $distDir = (Resolve-Path dist)
 $binaryArchives = Get-ChildItem -File -Filter *Windows*.tar.gz $distDir
 if ($binaryArchives.count -ne 1) {
