@@ -43,10 +43,10 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: winget-algokit-Windows-${{ inputs.architecture }}.msix
-        path: ./dist/winget-algokit.msix
+        path: ${{ github.workspace }}/dist/winget-algokit.msix
 
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
         name: algokit-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}
-        path: algokit${{ inputs.version != '' && '-${{ inputs.version }}' || '' }}-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
+        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && '-${{ inputs.version }}' || '${{ inputs.architecture }}' }}-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
