@@ -42,11 +42,11 @@ runs:
       if: ${{ inputs.operating_system == 'Windows' }}
       uses: actions/upload-artifact@v4
       with:
-        name: winget-algokit-${{ inputs.operating_system }}-${{ inputs.architecture }}.msix
+        name: winget-algokit-Windows-${{ inputs.architecture }}.msix
         path: ./dist/winget-algokit.msix
 
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
-        name: algokit-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}
-        path: algokit${{ inputs.version != '' && '-${{ inputs.version }}' || '' }}-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
+        name: algokit-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}
+        path: algokit${{ inputs.version != '' && '-${{ inputs.version }}' || '' }}-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
