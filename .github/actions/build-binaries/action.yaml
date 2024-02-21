@@ -80,10 +80,10 @@ runs:
         ls -la ${{ github.workspace }}/dist/artifacts/
       shell: bash
 
-    - name: Upload produced artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        path: ${{ github.workspace }}/dist/artifacts/
+    # - name: Upload produced artifacts
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     path: ${{ github.workspace }}/dist/artifacts/
 
     - name: Append artifacts to release
       continue-on-error: true

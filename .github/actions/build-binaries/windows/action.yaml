@@ -34,7 +34,7 @@ runs:
       shell: pwsh
       run: "./scripts/create-winget-package.ps1"
       env:
-        RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+        RELEASE_VERSION: ${{ inputs.version }}
 
     # TODO: NC - Codesign winget package
 
@@ -44,3 +44,9 @@ runs:
       with:
         name: winget-algokit-${{ inputs.operating_system }}-${{ inputs.architecture }}.msix
         path: ./dist/winget-algokit.msix
+
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: algokit-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}
+        path: algokit${{ inputs.version != '' && '-${{ inputs.version }}' || '' }}-${{ inputs.operating_system }}-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
