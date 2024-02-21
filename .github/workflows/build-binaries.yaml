@@ -6,7 +6,7 @@ on:
       - winget
 
 env:
-  production_release: "false"
+  production_release: "true"
   python_version: "3.12"
 
 jobs:

@@ -28,7 +28,7 @@ runs:
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
-        name: algokit-Windows-${{ inputs.architecture }}
+        name: algokit-Windows-${{ inputs.architecture }}.tar.gz
         path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-Windows-${{ inputs.architecture }}.tar.gz
 
     - name: Build msix
