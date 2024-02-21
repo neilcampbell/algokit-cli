@@ -49,4 +49,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: algokit-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}
-        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && '-${{ inputs.version }}' || '${{ inputs.architecture }}' }}-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
+        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || format('-{0}', inputs.architecture) }}-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
