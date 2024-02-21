@@ -10,9 +10,7 @@ $ErrorActionPreference = 'Stop'
 $sdkPath = (Resolve-Path "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64")
 $makePri = (Join-Path $sdkPath "makepri.exe")
 $makeAppx = (Join-Path $sdkPath "makeappx.exe")
-$version = if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION.TrimStart("v") } else { '0.0.1' }
-
-Write-Host "Version: $($version)"
+$version = if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION } else { '0.0.1' }
 
 $binaryArchives = Get-ChildItem -File -Filter .\dist\artifacts\*Windows*.tar.gz # TODO: NC - Work out where we need to run this from
 if ($binaryArchives.count -ne 1) {
@@ -42,7 +40,7 @@ $binaryArchive = $binaryArchives[0]
 tar -xf $binaryArchive -C $buildDir
 
 # Generate msix
-$packageFile = (Join-Path .\dist\artifacts algokit$(if ($env:RELEASE_VERSION) { "-$($env:RELEASE_VERSION)"  } else { '' })-winget-($env:ARCHITECTURE).msix) # TODO: NC - Name this better
+$packageFile = (Join-Path .\dist\artifacts "$($env:PACKAGE_NAME).msix") # TODO: NC - Name this better
 & $makeAppx pack /o /h SHA256 /d $buildDir /p $packageFile | Out-Null
 ThrowOnNonZeroExit "Failed to build msix"
 
