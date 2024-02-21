@@ -35,7 +35,7 @@ runs:
         [ -n "${RELEASE_VERSION}" ] && version="-${RELEASE_VERSION:1}" || version=''
         package_name="${{ inputs.package_name }}${version}-${{ inputs.operating_system }}_${{ inputs.architecture }}"
         # echo "PACKAGE_NAME=${package_name,,}" >> "${GITHUB_ENV}"
-        echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> "${GITHUB_ENV}
+        echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> "${GITHUB_ENV}"
 
     # GitHub doesn't support expressions in the uses block
     - name: Build & test binary
