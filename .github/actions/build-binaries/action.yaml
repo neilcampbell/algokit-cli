@@ -1,7 +1,7 @@
 name: "Setup, Build, and Test Pyinstaller Binaries"
 description: "Build, test and upload binaries to GitHub releases and/or artifacts (ensure poetry dependencies are installed before running this action)"
 inputs:
-  package_name:
+  package_name: # TODO: NC - Project name is probably better
     description: "The name of the package to build and test"
     required: true
   production_release:
@@ -33,16 +33,16 @@ runs:
       continue-on-error: true
       run: |
         mkdir -p ./dist/artifacts
-        package_name="${{ inputs.package_name }}${{ env.RELEASE_VERSION != '' && format('-{0}', env.RELEASE_VERSION) || '' }}-${{ inputs.operating_system }}_${{ inputs.architecture }}"
+        [ -n "${RELEASE_VERSION}" ] && version="-${RELEASE_VERSION:1}" || version=''
+        package_name="${{ inputs.package_name }}${version}-${{ inputs.operating_system }}_${{ inputs.architecture }}"
         echo "PACKAGE_NAME=${$package_name@L}" >> "${GITHUB_ENV}"
-        echo "${PACKAGE_NAME}"
 
     # GitHub doesn't support expressions in the uses block
     - name: Build & test binary
       if: ${{ inputs.operating_system == 'Windows' }}
       uses: ./.github/actions/build-binaries/windows
       with:
-        package_name: ${{ env.PACKAGE_NAME }}
+        package_name: ${{ env.PACKAGE_NAME }}}
         architecture: ${{ inputs.architecture }}
         version: ${{ env.RELEASE_VERSION }}
 
@@ -50,7 +50,7 @@ runs:
       if: ${{ inputs.operating_system == 'Linux' }}
       uses: ./.github/actions/build-binaries/linux
       with:
-        package_name: ${{ env.PACKAGE_NAME }}
+        package_name: ${{ env.PACKAGE_NAME }}}
         architecture: ${{ inputs.architecture }}
         version: ${{ env.RELEASE_VERSION }}
 
@@ -58,7 +58,7 @@ runs:
       if: ${{ inputs.operating_system == 'macOS' }}
       uses: ./.github/actions/build-binaries/macos
       with:
-        package_name: ${{ env.PACKAGE_NAME }}
+        package_name: ${{ env.PACKAGE_NAME }}}
         architecture: ${{ inputs.architecture }}
         version: ${{ env.RELEASE_VERSION }}
 
