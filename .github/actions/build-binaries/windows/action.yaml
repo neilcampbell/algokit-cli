@@ -18,24 +18,32 @@ runs:
       run: |
         poetry run poe package_windows
 
+    # {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
+    # algokit-{version NO v}-(platform)-(architecture).tar.gz
+
+    # algokit-0.1.0-windows_x64.tar.gz
+    # algokit-0.1.0-linux_x64.tar.gz
+    # algokit-0.1.0-macos_x64.tar.gz
+
     - name: Zip binaries
       shell: bash
       run: |
         cd dist/algokit/
-        tar -zcf ../artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-Windows-${{ inputs.architecture }}.tar.gz *
+        tar -zcf ../artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-windows_${{ inputs.architecture }}.tar.gz *
         cd ../..
 
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
         name: algokit-Windows-${{ inputs.architecture }}.tar.gz
-        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-Windows-${{ inputs.architecture }}.tar.gz
+        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-windows_${{ inputs.architecture }}.tar.gz
 
     - name: Build msix
       shell: pwsh
       run: "./scripts/create-winget-package.ps1"
       env:
         RELEASE_VERSION: ${{ inputs.version }}
+        ARCHITECTURE: ${{ inputs.architecture }}
 
     # TODO: NC - Codesign winget package
 
@@ -43,4 +51,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: winget-algokit-Windows-${{ inputs.architecture }}.msix
-        path: ${{ github.workspace }}/dist/artifacts/winget-algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}.msix
+        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-winget-${{ inputs.architecture }}.msix

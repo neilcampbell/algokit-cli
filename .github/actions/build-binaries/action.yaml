@@ -33,6 +33,9 @@ runs:
       continue-on-error: true
       run: |
         mkdir -p ./dist/artifacts
+        package_name="${{ inputs.package_name }}${{ inputs.version != '' && format('-{0}', RELEASE_VERSION) || '' }}-${{ inputs.operating_system }}_${{ inputs.architecture }}"
+        echo $package_name
+        echo "PACKAGE_NAME=${$package_name@L}" >> "${GITHUB_ENV}"
 
     # GitHub doesn't support expressions in the uses block
     - name: Build & test binary
