@@ -1,5 +1,5 @@
-name: "Build macOS Binary Artifacts"
-description: "Build macOS specific pyinstaller binary artifacts"
+name: "Build Linux Binary Artifacts"
+description: "Build Linux specific pyinstaller binary artifacts"
 inputs:
   package_name: # TODO: NC - We probably don't need this
     description: "The name of the package to build and test"
@@ -14,6 +14,7 @@ runs:
   using: "composite"
   steps:
     - name: Build Executable
+      shell: bash
       run: |
         poetry run poe package_unix
 
@@ -22,8 +23,8 @@ runs:
       run: |
         cd dist/algokit/
         if [ -n "${{ inputs.version }}" ]; then
-          tar -zcf ../artifacts/algokit-${{ inputs.version }}-macOS-${{ inputs.architecture }}.tar.gz *
+          tar -zcf ../artifacts/algokit-${{ inputs.version }}-Linux-${{ inputs.architecture }}.tar.gz *
         else
-          tar -zcf ../artifacts/algokit-macOS-${{ inputs.architecture }}.tar.gz *
+          tar -zcf ../artifacts/algokit-Linux-${{ inputs.architecture }}.tar.gz *
         fi
         cd ../..
