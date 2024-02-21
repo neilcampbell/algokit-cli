@@ -1,0 +1,29 @@
+name: "Build macOS Binary Artifacts"
+description: "Build macOS specific pyinstaller binary artifacts"
+inputs:
+  package_name: # TODO: NC - We probably don't need this
+    description: "The name of the package to build and test"
+    required: true
+  architecture:
+    description: "Architecture to set the correct binary path and extension"
+    required: true
+  version:
+    description: "The release version to use for this artifact"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build Executable
+      run: |
+        poetry run poe package_unix
+
+    - name: Zip binaries
+      shell: bash
+      run: |
+        cd dist/algokit/
+        if [ -n "${{ inputs.version }}" ]; then
+          tar -zcf ../artifacts/algokit-${{ inputs.version }}-macOS-${{ inputs.architecture }}.tar.gz *
+        else
+          tar -zcf ../artifacts/algokit-macOS-${{ inputs.architecture }}.tar.gz *
+        fi
+        cd ../..

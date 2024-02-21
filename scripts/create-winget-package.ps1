@@ -14,8 +14,7 @@ $version = if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION.TrimStart("v") } els
 
 Write-Host "Version: $($version)"
 
-$distDir = (Resolve-Path dist)
-$binaryArchives = Get-ChildItem -File -Filter *Windows*.tar.gz # TODO: NC - Work out where we need to run this from
+$binaryArchives = Get-ChildItem -File -Filter .\dist\artifacts\*Windows*.tar.gz # TODO: NC - Work out where we need to run this from
 if ($binaryArchives.count -ne 1) {
   Throw "Packaging error. build artifact contained $($binaryArchives.count) normally named windows binary archive files"
 }
@@ -38,11 +37,12 @@ ThrowOnNonZeroExit "Failed to create pri file"
 Pop-Location
 
 # Add algokit binaries
+# We can probably do this without extracting, as the output will already exist
 $binaryArchive = $binaryArchives[0]
 tar -xf $binaryArchive -C $buildDir
 
 # Generate msix
-$packageFile = (Join-Path $distDir winget-algokit.msix) # TODO: NC - Name this better
+$packageFile = (Join-Path .\dist\artifacts winget-algokit.msix) # TODO: NC - Name this better
 & $makeAppx pack /o /h SHA256 /d $buildDir /p $packageFile | Out-Null
 ThrowOnNonZeroExit "Failed to build msix"
 
