@@ -16,13 +16,6 @@ jobs:
       matrix:
         # macos-14 is the Apple Silicon M1 runner
         os: [ubuntu-20.04, windows-2019, macos-latest]
-        include:
-          - os: ubuntu-20.04
-            build_command: "poetry run poe package_unix"
-          - os: windows-2019
-            build_command: "poetry run poe package_windows"
-          - os: macos-latest
-            build_command: "poetry run poe package_unix"
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -48,4 +41,3 @@ jobs:
           production_release: ${{ env.production_release }}
           operating_system: ${{ runner.os }}
           architecture: ${{ runner.arch }}
-          build_command: ${{ matrix.build_command }}
