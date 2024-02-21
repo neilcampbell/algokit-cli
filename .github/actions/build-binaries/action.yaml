@@ -20,15 +20,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set release version
+    - name: Setup release
       shell: bash
       continue-on-error: true
       if: ${{ inputs.production_release == 'true' }}
       run: |
         echo "RELEASE_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_ENV
         git describe --tags $(git rev-list --tags --max-count=1)
+        mkdir -p ./dist/artifacts
 
-    # GitHub doesn't support expressions in the uses block
+    # GitHub doesn't support expressions in the uses block, so we have to use these conditional steps
     - name: Build & test binary
       if: ${{ inputs.operating_system == 'Windows' }}
       uses: ./.github/actions/build-binaries/windows
