@@ -75,16 +75,6 @@ runs:
         poetry run pytest tests/ -m pyinstaller_binary_tests --cli_path "${{ env.TEST_CLI_PATH }}" --log-cli-level=INFO
       shell: ${{ inputs.operating_system == 'Windows' && 'cmd' || 'bash' }}
 
-    - name: Test
-      run: |
-        ls -la ${{ github.workspace }}/dist/artifacts/
-      shell: bash
-
-    # - name: Upload produced artifacts
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     path: ${{ github.workspace }}/dist/artifacts/
-
     - name: Append artifacts to release
       continue-on-error: true
       if: ${{ inputs.production_release == 'true' }}

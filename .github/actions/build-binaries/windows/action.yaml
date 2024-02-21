@@ -22,15 +22,16 @@ runs:
       shell: bash
       run: |
         cd dist/algokit/
-        if [ -n "${{ inputs.version }}" ]; then
-          tar -zcf ../artifacts/algokit-${{ inputs.version }}-Windows-${{ inputs.architecture }}.tar.gz *
-        else
-          tar -zcf ../artifacts/algokit-Windows-${{ inputs.architecture }}.tar.gz *
-        fi
+        tar -zcf ../artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-Windows-${{ inputs.architecture }}.tar.gz *
         cd ../..
 
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: algokit-Windows-${{ inputs.architecture }}
+        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-Windows-${{ inputs.architecture }}.tar.gz
+
     - name: Build msix
-      if: ${{ inputs.operating_system == 'Windows' }}
       shell: pwsh
       run: "./scripts/create-winget-package.ps1"
       env:
@@ -38,15 +39,8 @@ runs:
 
     # TODO: NC - Codesign winget package
 
-    - name: Create winget artifact
-      if: ${{ inputs.operating_system == 'Windows' }}
+    - name: Upload winget artifact
       uses: actions/upload-artifact@v4
       with:
         name: winget-algokit-Windows-${{ inputs.architecture }}.msix
-        path: ${{ github.workspace }}/dist/winget-algokit.msix
-
-    - name: Upload binary artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: algokit-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}
-        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || format('-{0}', inputs.architecture) }}-Windows-${{ inputs.architecture }}-py${{ inputs.python_version }}.tar.gz
+        path: ${{ github.workspace }}/dist/artifacts/winget-algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}.msix

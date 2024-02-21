@@ -42,7 +42,7 @@ $binaryArchive = $binaryArchives[0]
 tar -xf $binaryArchive -C $buildDir
 
 # Generate msix
-$packageFile = (Join-Path .\dist\artifacts winget-algokit.msix) # TODO: NC - Name this better
+$packageFile = (Join-Path .\dist\artifacts\winget-algokit$(if ($env:RELEASE_VERSION) { "-$($env:RELEASE_VERSION)"  } else { '' }).msix) # TODO: NC - Name this better
 & $makeAppx pack /o /h SHA256 /d $buildDir /p $packageFile | Out-Null
 ThrowOnNonZeroExit "Failed to build msix"
 

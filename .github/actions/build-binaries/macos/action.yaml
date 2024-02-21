@@ -22,9 +22,11 @@ runs:
       shell: bash
       run: |
         cd dist/algokit/
-        if [ -n "${{ inputs.version }}" ]; then
-          tar -zcf ../artifacts/algokit-${{ inputs.version }}-macOS-${{ inputs.architecture }}.tar.gz *
-        else
-          tar -zcf ../artifacts/algokit-macOS-${{ inputs.architecture }}.tar.gz *
-        fi
+        tar -zcf ../artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-macOS-${{ inputs.architecture }}.tar.gz *
         cd ../..
+
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: algokit-macOS-${{ inputs.architecture }}
+        path: ${{ github.workspace }}/dist/artifacts/algokit${{ inputs.version != '' && format('-{0}', inputs.version) || '' }}-macOS-${{ inputs.architecture }}.tar.gz
