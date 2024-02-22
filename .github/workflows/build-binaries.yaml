@@ -37,7 +37,6 @@ jobs:
         uses: ./.github/actions/build-binaries
         with:
           python_version: ${{ env.python_version }}
-          package_name: "algokit"
           production_release: ${{ env.production_release }}
           operating_system: ${{ runner.os }}
           architecture: ${{ runner.arch }}

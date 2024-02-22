@@ -1,9 +1,6 @@
 name: "Setup, Build, and Test Pyinstaller Binaries"
 description: "Build, test and upload binaries to GitHub releases and/or artifacts (ensure poetry dependencies are installed before running this action)"
 inputs:
-  package_name: # TODO: NC - Project name is probably better
-    description: "The name of the package to build and test"
-    required: true
   production_release:
     description: "Flag to determine if this is a production release"
     required: true
@@ -25,16 +22,21 @@ runs:
       continue-on-error: true
       if: ${{ inputs.production_release == 'true' }}
       run: |
-        echo "RELEASE_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_ENV
-        git describe --tags $(git rev-list --tags --max-count=1)
+        echo "RELEASE_VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_ENV
 
     - name: Setup release
       shell: bash
       run: |
         mkdir -p ./dist/artifacts
-        [ -n "${RELEASE_VERSION}" ] && v="-${RELEASE_VERSION:1}" || v=''
-        package_name="${{ inputs.package_name }}${v}-${{ inputs.operating_system }}_${{ inputs.architecture }}"
-        echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> "${GITHUB_ENV}"
+
+        if [ -n "${RELEASE_VERSION_TAG}" ]; then
+          release_version="${RELEASE_VERSION_TAG:1}"
+          package_name_version="-${release_version}"
+          echo "RELEASE_VERSION=${release_version}" >> $GITHUB_ENV
+        fi
+        package_name="algokit${package_name_version}-${{ inputs.operating_system }}_${{ inputs.architecture }}"
+        echo "PACKAGE_NAME=${package_name,,}" >> "${GITHUB_ENV}"
+        #echo "PACKAGE_NAME=`echo $package_name | tr '[:upper:]' '[:lower:]'`" >> "${GITHUB_ENV}"
 
     # GitHub doesn't support expressions in the uses block
     - name: Build & test binary
@@ -42,7 +44,6 @@ runs:
       uses: ./.github/actions/build-binaries/windows
       with:
         package_name: ${{ env.PACKAGE_NAME }}}
-        architecture: ${{ inputs.architecture }}
         version: ${{ env.RELEASE_VERSION }}
 
     - name: Build & test binary
@@ -84,5 +85,5 @@ runs:
       with:
         files: |
           ./dist/artifacts/*.*
-        tag_name: ${{ env.RELEASE_VERSION }}
-        prerelease: ${{ contains(env.RELEASE_VERSION, 'beta') }}
+        tag_name: ${{ env.RELEASE_VERSION_TAG }}
+        prerelease: ${{ contains(env.RELEASE_VERSION_TAG, 'beta') }}

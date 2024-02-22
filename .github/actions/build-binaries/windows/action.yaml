@@ -28,7 +28,7 @@ runs:
     # algokit-0.1.0-linux_x64.tar.gz
     # algokit-0.1.0-macos_x64.tar.gz
 
-    - name: Zip binaries
+    - name: Zip binary artifact
       shell: bash
       run: |
         cd dist/algokit/
