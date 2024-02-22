@@ -60,21 +60,20 @@ runs:
         version: ${{ env.RELEASE_VERSION }}
         artifacts_dir: ${{ env.ARTIFACTS_DIR }}
 
-    # TODO: NC - Add to path and run like that instead and use artifacts_dir
-    - name: Set TEST_CLI_PATH
+    - name: Add binary to path
       run: |
         test_cli_path="${{ github.workspace }}/dist/algokit/algokit"
         if [ "${{ inputs.operating_system }}" == "Windows" ]; then
           test_cli_path="${{ github.workspace }}\dist\algokit\algokit.exe"
         fi
-        echo "TEST_CLI_PATH=${test_cli_path}" >> $GITHUB_ENV
+        echo "${test_cli_path}" >> $GITHUB_PATH
       shell: bash
 
     - name: Run portability tests
       run: |
-        echo "Executing: ${{ env.TEST_CLI_PATH }}"
+        echo 'Running portability tests'
         git config --global user.email "actions@github.com" && git config --global user.name "github-actions" 
-        poetry run pytest tests/ -m pyinstaller_binary_tests --cli_path "${{ env.TEST_CLI_PATH }}" --log-cli-level=INFO
+        poetry run pytest tests/ -m pyinstaller_binary_tests --log-cli-level=INFO
       shell: ${{ inputs.operating_system == 'Windows' && 'cmd' || 'bash' }}
 
     - name: Append artifacts to release
