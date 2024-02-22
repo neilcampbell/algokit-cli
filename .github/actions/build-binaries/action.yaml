@@ -32,7 +32,7 @@ runs:
           echo "RELEASE_VERSION=${release_version}" >> $GITHUB_ENV
         fi
         package_name="algokit${package_name_version}-${{ inputs.operating_system }}_${{ inputs.architecture }}"
-        echo "PACKAGE_NAME=${package_name,,}" >> $GITHUB_ENV
+        echo "PACKAGE_NAME=`echo ${package_name,,}`" >> $GITHUB_ENV
         echo "ARTIFACTS_DIR=${artifacts_dir}" >> $GITHUB_ENV
 
     # GitHub doesn't support expressions in the uses block
