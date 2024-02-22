@@ -1,0 +1,2 @@
+
+echo "$(algokit --version)"
