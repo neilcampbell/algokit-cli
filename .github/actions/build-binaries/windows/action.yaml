@@ -16,7 +16,7 @@ runs:
     - name: Build binary
       shell: bash
       run: |
-        echo "BINARY_BUILD_DIR=dist\algokit\" >> $GITHUB_ENV
+        echo 'BINARY_BUILD_DIR=dist\algokit\' >> $GITHUB_ENV
         poetry run poe package_windows
 
     # TODO: NC - Do we want to run a codesign of the exe before packaging it?
