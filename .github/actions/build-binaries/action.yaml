@@ -72,10 +72,10 @@ runs:
       shell: ${{ inputs.operating_system == 'Windows' && 'cmd' || 'bash' }}
 
     - name: Append artifacts to release
-      if: ${{ inputs.production_release == 'true' }}
       uses: softprops/action-gh-release@v1
+      # if: ${{ inputs.production_release == 'true' }}
       with:
         files: |
-          "${{ env.ARTIFACTS_DIR }}${{ inputs.operating_system == 'Windows' && '\' || '/' }}*.*"
+          ${{ env.ARTIFACTS_DIR }}${{ inputs.operating_system == 'Windows' && '\' || '/' }}*.*
         tag_name: ${{ env.RELEASE_VERSION_TAG }}
         prerelease: ${{ contains(env.RELEASE_VERSION_TAG, 'beta') }}
