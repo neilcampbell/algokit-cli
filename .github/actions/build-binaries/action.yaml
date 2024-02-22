@@ -72,7 +72,6 @@ runs:
       shell: ${{ inputs.operating_system == 'Windows' && 'cmd' || 'bash' }}
 
     - name: Append artifacts to release
-      if: ${{ inputs.production_release == 'true' }}
       uses: softprops/action-gh-release@v1
       with:
         files: |
