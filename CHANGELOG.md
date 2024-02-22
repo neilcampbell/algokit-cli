@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.11.5 (2024-02-22)
+
+### Fix
+
+* Tweaks ([`9cc3be2`](https://github.com/neilcampbell/algokit-cli/commit/9cc3be2d431ab2958af991d41ee4bc425e33b9ec))
+* Security issue ([`b7be8a8`](https://github.com/neilcampbell/algokit-cli/commit/b7be8a8d0099e7cdd81f948df4ce7c20809c8cdc))
+
 ## v1.11.4 (2024-02-19)
 
 ### Fix
