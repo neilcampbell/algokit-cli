@@ -9,48 +9,85 @@ inputs:
     required: true
   version:
     description: "The version to use for this artifact"
+  code_signing_cert:
+    description: "The base64 encoded code signing certificate"
+    required: true
+  code_signing_cert_sha1_hash:
+    description: "The SHA1 hash of the code signing certificate"
+    required: true
+  code_signing_cert_password:
+    description: "The password for the code signing certificate"
+    required: true
 
 runs:
   using: "composite"
   steps:
+    - name: Configure build environment
+      run: |
+        echo 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64' >> $GITHUB_PATH
+        echo 'BINARY_BUILD_DIR=dist\algokit\' >> $GITHUB_ENV
+        echo 'BINARY_ARTIFACT=${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz' >> $GITHUB_ENV
+        echo 'WINGET_ARTIFACT=${{ inputs.artifacts_dir }}\${{ inputs.package_name }}-winget.msix' >> $GITHUB_ENV
+        signing_cert="${{ runner.temp }}\code_signing_cert.pfx"
+        echo "SIGNING_CERT=${signing_cert}" >> $GITHUB_ENV
+        echo '${{ inputs.sm_code_signing_cert }}' | base64 -d > $signing_cert
+      shell: bash
+
+    - name: Import signing certificate
+      shell: pwsh
+      run: |
+        Import-PfxCertificate -FilePath $env:SIGNING_CERT -Password (ConvertTo-SecureString -String ${{ inputs.code_signing_cert_password }} -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\My
+
     - name: Build binary
       shell: bash
       run: |
-        echo 'BINARY_BUILD_DIR=dist\algokit\' >> $GITHUB_ENV
         poetry run poe package_windows
 
-    # TODO: NC - Do we want to run a codesign of the exe before packaging it?
+    - name: Sign executable
+      shell: pwsh
+      run: |
+        $executablePath = '${{ env.BINARY_BUILD_DIR }}\algokit.exe'
+        signtool sign /sha1 ${{ inputs.code_signing_cert_sha1_hash }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 $executablePath
+        signtool verify /v /pa $executablePath
 
     - name: Package binary artifact
       shell: pwsh
       run: |
         Set-Location -Path ${{ env.BINARY_BUILD_DIR }}
-        tar -zcf ${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz *
+        tar -zcf ${{ env.BINARY_ARTIFACT }} *
         Set-Location -Path ..\..
 
     - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}
-        path: ${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz
+        path: ${{ env.BINARY_ARTIFACT }}
+        if-no-files-found: error
 
-    - name: Add build tools to path
-      run: |
-        echo "C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64" >> $GITHUB_PATH
-      shell: bash
-
-    - name: Build msix
+    - name: Build winget installer
       shell: pwsh
       run: |
         & .\scripts\create-winget-package.ps1 `
           -binaryDir ${{ env.BINARY_BUILD_DIR }} `
           -releaseVersion ${{ inputs.version }} `
-          -outputFile ${{ inputs.artifacts_dir }}\${{ inputs.package_name }}-winget.msix
+          -outputFile ${{ env.WINGET_ARTIFACT }}
 
-    # TODO: NC - Codesign winget package
+    - name: Sign winget installer
+      shell: pwsh
+      run: |
+        signtool sign /sha1 ${{ inputs.code_signing_cert_sha1_hash }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 '${{ env.WINGET_ARTIFACT }}'
+        signtool verify /v /pa '${{ env.WINGET_ARTIFACT }}'
+
+    - name: Remove signing certificate
+      shell: pwsh
+      run: |
+        $cert = Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Hash -eq ${{ inputs.code_signing_cert_sha1_hash }} }
+        Remorie-Item -Path $env:SIGNING_CERT
+        Remove-Item -Path $cert.PSPath
 
     - name: Upload winget artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}-winget
-        path: ${{ inputs.artifacts_dir }}\${{ inputs.package_name }}-winget.msix
+        path: ${{ env.WINGET_ARTIFACT }}
+        if-no-files-found: error
