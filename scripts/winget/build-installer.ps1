@@ -22,20 +22,20 @@ Function ThrowOnNonZeroExit {
 $ErrorActionPreference = 'Stop'
 
 Remove-Item -Path build -Recurse -ErrorAction Ignore
-$buildDir = New-Item -ItemType Directory -Path .\build\winget
+$buildDir = New-Item -ItemType Directory -Path .\build\winget\installer
 
 # Add installer assets
 $assetsDir = New-Item -ItemType Directory -Path (Join-Path $buildDir assets)
-Copy-Item -Path .\scripts\winget\assets\* -Destination $assetsDir -Recurse | Out-Null
+Copy-Item -Path .\scripts\winget\installer\assets\* -Destination $assetsDir -Recurse | Out-Null
 
 # Add manifest file
 $version = if ($releaseVersion) { $releaseVersion -replace '-\w+|\+.+$', '' } else { '0.0.1.0' } # Strip the pre-release meta, as it's not valid
-(Get-Content (Resolve-Path .\scripts\winget\AppxManifest.xml)).Replace('0.0.1.0', $("$version.0")) | Set-Content (Join-Path $buildDir AppxManifest.xml)
+(Get-Content (Resolve-Path .\scripts\winget\installer\AppxManifest.xml)).Replace('0.0.1.0', $("$version.0")) | Set-Content (Join-Path $buildDir AppxManifest.xml)
 
 # Generate pri resource map for installer assets
-$priConfig = (Resolve-Path .\scripts\winget\priconfig.xml)
+$priConfig = (Resolve-Path .\scripts\winget\installer\priconfig.xml)
 Push-Location $buildDir
-MakePri new /ProjectRoot $buildDir /ConfigXml $priConfig | Out-Null
+makepri new /ProjectRoot $buildDir /ConfigXml $priConfig | Out-Null
 ThrowOnNonZeroExit "Failed to create pri file"
 Pop-Location
 
@@ -43,5 +43,6 @@ Pop-Location
 Copy-Item -Path (Join-Path $binaryDir *) -Destination $buildDir -Recurse | Out-Null
 
 # Generate msix
-MakeAppx pack /o /h SHA256 /d $buildDir /p $outputFile | Out-Null
+makeappx pack /o /h SHA256 /d $buildDir /p $outputFile | Out-Null
 ThrowOnNonZeroExit "Failed to build msix"
+
