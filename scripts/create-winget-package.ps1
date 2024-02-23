@@ -35,7 +35,7 @@ $version = if ($releaseVersion) { $releaseVersion -replace '-\w+|\+.+$', '' } el
 # Generate pri resource map for installer assets
 $priConfig = (Resolve-Path .\scripts\winget\priconfig.xml)
 Push-Location $buildDir
-MakePri new /ProjectRoot $buildDir /ConfigXml $priConfig | Out-Null
+makepri new /ProjectRoot $buildDir /ConfigXml $priConfig | Out-Null
 ThrowOnNonZeroExit "Failed to create pri file"
 Pop-Location
 
@@ -43,5 +43,5 @@ Pop-Location
 Copy-Item -Path (Join-Path $binaryDir *) -Destination $buildDir -Recurse | Out-Null
 
 # Generate msix
-MakeAppx pack /o /h SHA256 /d $buildDir /p $outputFile | Out-Null
+makeappx pack /o /h SHA256 /d $buildDir /p $outputFile | Out-Null
 ThrowOnNonZeroExit "Failed to build msix"
