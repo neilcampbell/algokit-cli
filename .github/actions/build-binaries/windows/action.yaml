@@ -31,7 +31,7 @@ runs:
         echo 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64' >> $GITHUB_PATH
         echo 'BINARY_BUILD_DIR=dist\algokit' >> $GITHUB_ENV
         echo 'BINARY_ARTIFACT=${{ inputs.artifacts_dir }}\${{ inputs.package_name }}.tar.gz' >> $GITHUB_ENV
-        echo 'WINGET_ARTIFACT=${{ inputs.artifacts_dir }}\${{ inputs.package_name }}-winget.msix' >> $GITHUB_ENV
+        echo 'WINGET_INSTALLER=${{ inputs.artifacts_dir }}\${{ inputs.package_name }}-winget.msix' >> $GITHUB_ENV
 
     - name: Build binary
       shell: bash
@@ -82,14 +82,14 @@ runs:
         & .\scripts\winget\build-installer.ps1 `
           -binaryDir ${{ env.BINARY_BUILD_DIR }} `
           -releaseVersion ${{ inputs.version }} `
-          -outputFile ${{ env.WINGET_ARTIFACT }}
+          -outputFile ${{ env.WINGET_INSTALLER }}
 
     - name: Sign winget installer
       if: ${{ inputs.production_release == 'true' }}
       shell: pwsh
       run: |
-        signtool sign /sha1 ${{ inputs.code_signing_cert_sha1_hash }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ${{ env.WINGET_ARTIFACT }}
-        # signtool verify /v /pa ${{ env.WINGET_ARTIFACT }}
+        signtool sign /sha1 ${{ inputs.code_signing_cert_sha1_hash }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 ${{ env.WINGET_INSTALLER }}
+        # signtool verify /v /pa ${{ env.WINGET_INSTALLER }}
 
     - name: Remove signing certificate
       if: ${{ inputs.production_release == 'true' }}
@@ -103,5 +103,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}-winget
-        path: ${{ env.WINGET_ARTIFACT }}
+        path: ${{ env.WINGET_INSTALLER }}
         if-no-files-found: error
