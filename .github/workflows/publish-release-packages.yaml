@@ -63,6 +63,9 @@ jobs:
     runs-on: windows-latest
     if: ${{ inputs.do_winget }}
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
       - name: Publish to winget
         shell: pwsh
         env:
