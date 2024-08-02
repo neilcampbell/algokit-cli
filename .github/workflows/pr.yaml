@@ -27,3 +27,13 @@ jobs:
       production_release: "false"
       python_version: "3.12"
     secrets: inherit
+
+  cd-publish-release-packages:
+    name: Release binaries via distribution channels
+    needs:
+      - pr-binaries-build
+    uses: ./.github/workflows/publish-release-packages.yaml
+    with:
+      artifactName: algokit-cli
+      release_version: "2.2.2"
+    secrets: inherit
