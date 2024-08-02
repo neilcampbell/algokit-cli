@@ -1,9 +1,9 @@
 name: Codebase validation
 
 on:
-  pull_request:
-  schedule:
-    - cron: "0 8 * * 1" # Each monday 8 AM UTC
+  push:
+    branches:
+      - winget-cd-test
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -26,4 +26,14 @@ jobs:
     with:
       production_release: "false"
       python_version: "3.12"
+    secrets: inherit
+
+  cd-publish-release-packages:
+    name: Release binaries via distribution channels
+    needs:
+      - pr-binaries-build
+    uses: ./.github/workflows/publish-release-packages.yaml
+    with:
+      artifactName: algokit-cli
+      release_version: "2.2.2"
     secrets: inherit

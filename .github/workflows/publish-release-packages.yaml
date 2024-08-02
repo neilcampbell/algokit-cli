@@ -59,75 +59,6 @@ on:
         description: "Publish to snap repository"
 
 jobs:
-  publish-brew:
-    runs-on: ubuntu-latest
-    if: ${{ inputs.do_brew }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      # Download either via release or provided artifact
-      - name: Download release
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: gh release download v${{ inputs.release_version }} --pattern "*.whl" --dir dist
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Download artifact
-        if: ${{ github.event_name == 'workflow_call' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.artifactName }}
-          path: dist
-
-      - name: Set Git user as GitHub actions
-        run: git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
-
-      - name: Update homebrew cask
-        run: scripts/update-brew-cask.sh "dist/algokit*-py3-none-any.whl" "algorandfoundation/homebrew-tap"
-        env:
-          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
-
-  publish-chocolatey:
-    runs-on: windows-latest
-    if: ${{ inputs.do_chocolatey }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      # Download either via release or provided artifact
-      - name: Download release
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: gh release download v${{ inputs.release_version }} --pattern "*.whl" --dir dist
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Download artifact
-        if: ${{ github.event_name == 'workflow_call' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.artifactName }}
-          path: dist
-
-      - name: Update chocolatey files
-        id: update_chocolatey_files
-        run: scripts/update-chocolatey-package.ps1
-
-      - name: Build package
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: pack --version ${{ steps.update_chocolatey_files.outputs.version }} .\scripts\chocolatey\algokit\algokit.nuspec
-
-      - name: Set API key
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: apikey --api-key ${{ secrets.CHOCOLATEY_API_KEY }} -source https://push.chocolatey.org/
-
-      - name: Push package
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: push --source https://push.chocolatey.org/
-
   publish-winget:
     runs-on: windows-latest
     if: ${{ inputs.do_winget }}
@@ -135,54 +66,8 @@ jobs:
       - name: Publish to winget
         shell: pwsh
         env:
-          WINGET_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+          WINGET_GITHUB_TOKEN: "TESTING"
         run: |
           echo 'Publishing to winget'
           & .\scripts\winget\update-package.ps1 `
             -releaseVersion '${{ inputs.release_version }}'
-
-  publish-snap:
-    runs-on: ubuntu-latest
-    if: ${{ inputs.do_snap }}
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Download binary artifact from release
-        run: |
-          gh release download v${{ inputs.release_version }} --pattern "*-snap.tar.gz" --dir dist
-          BINARY_PATH=$(ls dist/*-snap.tar.gz)
-          echo "BINARY_PATH=$BINARY_PATH" >> $GITHUB_ENV
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Generate snapcraft.yaml
-        run: |
-          ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release_version }} ${{ env.BINARY_PATH }} "stable"
-
-      - name: Upload snapcraft.yaml as reference artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: snapcraft-yaml
-          path: ${{ github.workspace }}/snap/snapcraft.yaml
-
-      - name: Build snap
-        uses: snapcore/action-build@v1
-        with:
-          snapcraft-args: --target-arch amd64
-
-      - name: Set path to snap binary
-        shell: bash
-        run: |
-          echo "SNAP_BINARY_PATH=$(find ${{ github.workspace }} -name '*.snap')" >> $GITHUB_ENV
-
-      - name: Publish snap
-        uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_RELEASE_TOKEN }}
-        with:
-          snap: ${{ env.SNAP_BINARY_PATH }}
-          release: stable
